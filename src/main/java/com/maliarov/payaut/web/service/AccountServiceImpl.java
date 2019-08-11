@@ -7,6 +7,7 @@ import com.maliarov.payaut.web.dto.AccountCreateDto;
 import com.maliarov.payaut.web.dto.AccountDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -19,6 +20,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    @Transactional
     public AccountDto create(AccountCreateDto input) {
         // very simple validation
         if (StringUtils.isEmpty(input.getOwner())) {
@@ -35,6 +37,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public AccountBalanceDto getBalance(String accountId) {
         return accountRepository.findById(accountId).map(this::convert).map(this::convert)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Could not find account with id " + accountId));
