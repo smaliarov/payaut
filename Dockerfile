@@ -1,4 +1,4 @@
-FROM openjdk:11-jdk-alpine
+FROM openjdk:12-jdk-alpine
 MAINTAINER Sergii Maliarov <sergii.maliarov@gmail.com>
 
 VOLUME /tmp
