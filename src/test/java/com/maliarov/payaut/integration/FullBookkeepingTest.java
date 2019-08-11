@@ -35,6 +35,10 @@ public class FullBookkeepingTest extends AbstractTestNGSpringContextTests {
     private String firstAccountId;
     private String secondAccountId;
 
+    private final String creditTransactionId = UUID.randomUUID().toString();
+    private final String debitTransactionId = UUID.randomUUID().toString();
+    private final String betweenAccountsTransactionId = UUID.randomUUID().toString();
+
     public FullBookkeepingTest() {
         HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
         requestFactory.setConnectTimeout(1000);
@@ -133,36 +137,35 @@ public class FullBookkeepingTest extends AbstractTestNGSpringContextTests {
     }
 
     @Test(groups = "transferSingle", dependsOnGroups = "balance")
-    public void credit() throws URISyntaxException {
-        transferSingle("credit", firstAccountId, 50000L);
+    public void creditFirstTime() throws URISyntaxException {
+        transferSingle(creditTransactionId, "credit", firstAccountId, 50000L);
+    }
+
+    @Test(groups = "transferSingle", dependsOnGroups = "balance", dependsOnMethods = "creditFirstTime")
+    public void creditSecondTime() throws URISyntaxException {
+        transferSingle(creditTransactionId, "credit", firstAccountId, 50000L);
     }
 
     @Test(groups = "transferSingle", dependsOnGroups = "balance")
-    public void debit() throws URISyntaxException {
-        transferSingle("debit", secondAccountId, -50000L);
+    public void debitFirstTime() throws URISyntaxException {
+        transferSingle(debitTransactionId, "debit", secondAccountId, -50000L);
     }
 
-    private void transferSingle(String operation, String accountId, Long expectedAmount) throws URISyntaxException {
+    @Test(groups = "transferSingle", dependsOnGroups = "balance", dependsOnMethods = "debitFirstTime")
+    public void debitSecondTime() throws URISyntaxException {
+        transferSingle(debitTransactionId, "debit", secondAccountId, -50000L);
+    }
+
+    private void transferSingle(String transactionId, String operation, String accountId, Long expectedAmount) throws URISyntaxException {
         TransferSingleAccount input = new TransferSingleAccount();
         input.setAccountId(accountId);
         input.setAmountInCents(50000L);
-
-        String transactionId = UUID.randomUUID().toString();
 
         ResponseEntity<AccountBalance> entity = this.restTemplate.exchange(
                 new RequestEntity<>(input, HttpMethod.PATCH, new URI(getTransferUrl(transactionId, "/" + operation))), AccountBalance.class);
 
         assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
         AccountBalance accountBalance = entity.getBody();
-        assertThat(accountBalance).isNotNull();
-        assertThat(accountBalance.getAmountInCents()).isEqualTo(expectedAmount);
-
-        // same transaction second time
-        entity = this.restTemplate.exchange(
-                new RequestEntity<>(input, HttpMethod.PATCH, new URI(getTransferUrl(transactionId, "/" + operation))), AccountBalance.class);
-
-        assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
-        accountBalance = entity.getBody();
         assertThat(accountBalance).isNotNull();
         assertThat(accountBalance.getAmountInCents()).isEqualTo(expectedAmount);
     }
@@ -224,23 +227,23 @@ public class FullBookkeepingTest extends AbstractTestNGSpringContextTests {
     }
 
     @Test(groups = "transferBetweenAccounts", dependsOnGroups = "transferSingle")
-    public void transferBetweenAccounts() throws URISyntaxException {
+    public void transferBetweenAccountsFirstTime() throws URISyntaxException {
+        transferBetweenAccounts();
+    }
+
+    @Test(groups = "transferBetweenAccounts", dependsOnGroups = "transferSingle", dependsOnMethods = "transferBetweenAccountsFirstTime")
+    public void transferBetweenAccountsSecondTime() throws URISyntaxException {
+        transferBetweenAccounts();
+    }
+
+    private void transferBetweenAccounts() throws URISyntaxException {
         TransferBetweenAccounts input = new TransferBetweenAccounts();
         input.setAccountIdFrom(firstAccountId);
         input.setAccountIdTo(secondAccountId);
         input.setAmountInCents(20000L);
 
-        String transactionId = UUID.randomUUID().toString();
-
-        transferBetweenAccounts(input, transactionId);
-
-        // same transaction second time
-        transferBetweenAccounts(input, transactionId);
-    }
-
-    private void transferBetweenAccounts(TransferBetweenAccounts input, String transactionId) throws URISyntaxException {
         ResponseEntity<TransferBetweenAccountsResult> entity = this.restTemplate.exchange(
-                new RequestEntity<>(input, HttpMethod.PATCH, new URI(getTransferUrl(transactionId))), TransferBetweenAccountsResult.class);
+                new RequestEntity<>(input, HttpMethod.PATCH, new URI(getTransferUrl(betweenAccountsTransactionId))), TransferBetweenAccountsResult.class);
         assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
         TransferBetweenAccountsResult result = entity.getBody();
         assertThat(result).isNotNull();
