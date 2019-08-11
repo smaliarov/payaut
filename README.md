@@ -12,3 +12,11 @@ The application is a simple bookkeeping application that provides the following 
 - credit on a specified account
 - transfer between two accounts
 - balance of an account
+
+-----
+Access REST services using swagger-ui: http://localhost:8080/swagger-ui.html
+
+-----
+Assumptions:
+- every transaction has a unique id
+- account may have negative amount of money
