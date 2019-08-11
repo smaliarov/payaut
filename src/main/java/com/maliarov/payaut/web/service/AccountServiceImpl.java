@@ -2,9 +2,9 @@ package com.maliarov.payaut.web.service;
 
 import com.maliarov.payaut.model.Account;
 import com.maliarov.payaut.repository.AccountRepository;
-import com.maliarov.payaut.web.dto.AccountBalanceDto;
-import com.maliarov.payaut.web.dto.AccountCreateDto;
-import com.maliarov.payaut.web.dto.AccountDto;
+import com.maliarov.payaut.web.dto.AccountBalance;
+import com.maliarov.payaut.web.dto.AccountCreate;
+import com.maliarov.payaut.web.dto.AccountFull;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +21,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public AccountDto create(AccountCreateDto input) {
+    public AccountFull create(AccountCreate input) {
         // very simple validation
         if (StringUtils.isEmpty(input.getOwner())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Owner cannot be empty");
@@ -33,32 +33,13 @@ public class AccountServiceImpl implements AccountService {
 
         account = accountRepository.save(account);
 
-        return convert(account);
+        return ConvertorHelper.convertToFull(account);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public AccountBalanceDto getBalance(String accountId) {
-        return accountRepository.findById(accountId).map(this::convert).map(this::convert)
+    public AccountBalance getBalance(String accountId) {
+        return accountRepository.findById(accountId).map(ConvertorHelper::convertToBalance)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Could not find account with id " + accountId));
-    }
-
-    private AccountDto convert(Account account) {
-        AccountDto result = new AccountDto();
-
-        result.setId(account.getId());
-        result.setAmountInCents(account.getAmountInCents());
-        result.setOwner(account.getOwner());
-
-        return result;
-    }
-
-    private AccountBalanceDto convert(AccountDto account) {
-        AccountBalanceDto result = new AccountBalanceDto();
-
-        result.setId(account.getId());
-        result.setAmountInCents(account.getAmountInCents());
-
-        return result;
     }
 }

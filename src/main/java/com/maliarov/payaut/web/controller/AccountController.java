@@ -1,9 +1,8 @@
 package com.maliarov.payaut.web.controller;
 
-import com.maliarov.payaut.repository.AccountRepository;
-import com.maliarov.payaut.web.dto.AccountBalanceDto;
-import com.maliarov.payaut.web.dto.AccountCreateDto;
-import com.maliarov.payaut.web.dto.AccountDto;
+import com.maliarov.payaut.web.dto.AccountBalance;
+import com.maliarov.payaut.web.dto.AccountCreate;
+import com.maliarov.payaut.web.dto.AccountFull;
 import com.maliarov.payaut.web.service.AccountService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -29,14 +28,14 @@ public class AccountController {
     @ResponseStatus(HttpStatus.CREATED)
     @ApiResponses(value = {@ApiResponse(code = 201, message = "Created successfully"),
             @ApiResponse(code = 400, message = "Validation failed")})
-    AccountDto create(@Valid @RequestBody AccountCreateDto input) {
+    AccountFull create(@Valid @RequestBody AccountCreate input) {
         return accountService.create(input);
     }
 
     @RequestMapping(value = "/{accountId}/balance", method = RequestMethod.GET)
     @ApiOperation("Gets balance of an account")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    AccountBalanceDto balance(@PathVariable("accountId") String accountId) {
+    AccountBalance balance(@PathVariable("accountId") String accountId) {
         return accountService.getBalance(accountId);
     }
 }

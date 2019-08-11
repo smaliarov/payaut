@@ -1,6 +1,6 @@
 package com.maliarov.payaut.web.dto;
 
-public class AccountDto {
+public class AccountFull {
     private String id;
     private String owner;
     private Long amountInCents;

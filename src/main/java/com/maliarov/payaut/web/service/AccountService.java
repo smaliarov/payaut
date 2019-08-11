@@ -1,11 +1,11 @@
 package com.maliarov.payaut.web.service;
 
-import com.maliarov.payaut.web.dto.AccountBalanceDto;
-import com.maliarov.payaut.web.dto.AccountCreateDto;
-import com.maliarov.payaut.web.dto.AccountDto;
+import com.maliarov.payaut.web.dto.AccountBalance;
+import com.maliarov.payaut.web.dto.AccountCreate;
+import com.maliarov.payaut.web.dto.AccountFull;
 
 public interface AccountService {
-    AccountDto create(AccountCreateDto input);
+    AccountFull create(AccountCreate input);
 
-    AccountBalanceDto getBalance(String accountId);
+    AccountBalance getBalance(String accountId);
 }
