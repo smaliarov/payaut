@@ -11,6 +11,7 @@ import com.maliarov.payaut.web.dto.TransferSingleAccount;
 import com.maliarov.payaut.web.dto.TransferBetweenAccountsResult;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
@@ -27,12 +28,14 @@ public class TransferServiceImpl implements TransferService {
     }
 
     @Override
+    @Transactional
     public AccountBalance credit(String transactionId, TransferSingleAccount dto) {
         return transferSingle(transactionId, dto, TransactionType.CREDIT,
                 (account, transferSingleAccount) -> account.getAmountInCents() + dto.getAmountInCents());
     }
 
     @Override
+    @Transactional
     public AccountBalance debit(String transactionId, TransferSingleAccount dto) {
         return transferSingle(transactionId, dto, TransactionType.DEBIT,
                 (account, transferSingleAccount) -> account.getAmountInCents() - dto.getAmountInCents());
@@ -51,19 +54,26 @@ public class TransferServiceImpl implements TransferService {
             newTransaction.setId(transactionId);
             newTransaction.setTransactionType(transactionType);
 
+            accountRepository.save(account);
+
             return Optional.of(transactionRepository.save(newTransaction));
         }).map(Transaction::getAccountTo).map(ConvertorHelper::convertToBalance)
+                //  normally, it should always exist, an empty transaction record would mean something went really weird
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not create new transaction"));
     }
 
     @Override
+    @Transactional
     public TransferBetweenAccountsResult transferBetweenAccounts(String transactionId, TransferBetweenAccounts dto) {
         Transaction transaction = transactionRepository.findById(transactionId).orElseGet(() -> {
             Account accountFrom = getAccount(dto.getAccountIdFrom());
-            Account accountTo = getAccount(dto.getAccountIdFrom());
+            Account accountTo = getAccount(dto.getAccountIdTo());
 
             accountFrom.setAmountInCents(accountFrom.getAmountInCents() - dto.getAmountInCents());
             accountTo.setAmountInCents(accountTo.getAmountInCents() + dto.getAmountInCents());
+
+            accountRepository.save(accountFrom);
+            accountRepository.save(accountTo);
 
             Transaction newTransaction = new Transaction();
             newTransaction.setAccountFrom(accountFrom);

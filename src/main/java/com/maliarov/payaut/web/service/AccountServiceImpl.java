@@ -22,11 +22,6 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public AccountFull create(AccountCreate input) {
-        // very simple validation
-        if (StringUtils.isEmpty(input.getOwner())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Owner cannot be empty");
-        }
-
         Account account = new Account();
         account.setOwner(input.getOwner());
         account.setAmountInCents(0L);

@@ -12,8 +12,8 @@ public class Transaction {
     @JoinColumn(name = "account_from_id")
     private Account accountFrom;
 
-    @ManyToOne
-    @JoinColumn(name = "account_to_id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "account_to_id", nullable = false)
     private Account accountTo;
 
     @Column(nullable = false, name = "amount_in_cents")

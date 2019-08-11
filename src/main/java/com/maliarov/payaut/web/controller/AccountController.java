@@ -34,7 +34,6 @@ public class AccountController {
 
     @RequestMapping(value = "/{accountId}/balance", method = RequestMethod.GET)
     @ApiOperation("Gets balance of an account")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     AccountBalance balance(@PathVariable("accountId") String accountId) {
         return accountService.getBalance(accountId);
     }

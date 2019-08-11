@@ -1,14 +1,14 @@
 package com.maliarov.payaut.web.service;
 
-import com.maliarov.payaut.web.dto.AccountBalanceDto;
-import com.maliarov.payaut.web.dto.TransferBetweenAccountsDto;
-import com.maliarov.payaut.web.dto.TransferSingleAccountDto;
-import com.maliarov.payaut.web.dto.TransferBetweenAccountsResultDto;
+import com.maliarov.payaut.web.dto.AccountBalance;
+import com.maliarov.payaut.web.dto.TransferBetweenAccounts;
+import com.maliarov.payaut.web.dto.TransferSingleAccount;
+import com.maliarov.payaut.web.dto.TransferBetweenAccountsResult;
 
 public interface TransferService {
-    AccountBalanceDto credit(String transactionId, TransferSingleAccountDto dto);
+    AccountBalance credit(String transactionId, TransferSingleAccount dto);
 
-    AccountBalanceDto debit(String transactionId, TransferSingleAccountDto dto);
+    AccountBalance debit(String transactionId, TransferSingleAccount dto);
 
-    TransferBetweenAccountsResultDto transferBetweenAccounts(String transactionId, TransferBetweenAccountsDto dto);
+    TransferBetweenAccountsResult transferBetweenAccounts(String transactionId, TransferBetweenAccounts dto);
 }
