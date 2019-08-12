@@ -7,7 +7,4 @@ ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app/lib/pa
 VOLUME /tmp
 EXPOSE 8080
 
-# Add libs
-COPY target/lib /app/lib
-# Add the service itself
 COPY target/${JAR_FILE} /app/lib/payout.jar

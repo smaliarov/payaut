@@ -14,6 +14,10 @@ The application is a simple bookkeeping application that provides the following 
 - balance of an account
 
 -----
+Create Docker image by running `mvn clean package docker:build`
+
+Run it using `docker run -ti -p 8080:8080 smaliarov/payaut:latest`
+
 Access REST services using swagger-ui: http://localhost:8080/swagger-ui.html
 
 -----
